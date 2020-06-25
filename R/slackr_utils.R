@@ -20,7 +20,7 @@ slackr_chtrans <- function(channels, api_token=Sys.getenv("SLACK_API_TOKEN")) {
   chan$name <- sprintf("#%s", chan$name)
   users$name <- sprintf("@%s", users$name)
 
-  chan_list <- data_frame(id=character(0), name=character(0))
+  chan_list <- tibble(id=character(0), name=character(0))
 
   if (length(chan) > 0) { chan_list <- bind_rows(chan_list, chan[, c("id", "name")])  }
   if (length(users) > 0) { chan_list <- bind_rows(chan_list, users[, c("id", "name")]) }
@@ -28,7 +28,7 @@ slackr_chtrans <- function(channels, api_token=Sys.getenv("SLACK_API_TOKEN")) {
 
   chan_list <- dplyr::distinct(chan_list)
 
-  chan_list <- data.frame(chan_list, stringsAsFactors=FALSE)
+  chan_list <- tibble(chan_list, stringsAsFactors=FALSE)
   chan_xref <- chan_list[chan_list$name %in% channels, ]
 
   ifelse(is.na(chan_xref$id),
@@ -38,10 +38,10 @@ slackr_chtrans <- function(channels, api_token=Sys.getenv("SLACK_API_TOKEN")) {
 }
 
 
-#' Get a data frame of Slack users
+#' Get a tibble of Slack users
 #'
 #' @param api_token the Slack full API token (chr)
-#' @return \code{data.frame} of users
+#' @return \code{tibble} of users
 #' @rdname slackr_users
 #' @export
 slackr_users <- function(api_token=Sys.getenv("SLACK_API_TOKEN")) {
@@ -54,11 +54,11 @@ slackr_users <- function(api_token=Sys.getenv("SLACK_API_TOKEN")) {
   httr::stop_for_status(tmp)
   members <- jsonlite::fromJSON(httr::content(tmp, as="text"))$members
   cols <- setdiff(colnames(members), c("profile", "real_name"))
-  cbind.data.frame(members[,cols], members$profile, stringsAsFactors=FALSE)
+  cbind(members[,cols], members$profile)
 
 }
 
-#' Get a data frame of Slack channels
+#' Get a tibble of Slack channels
 #'
 #' @param api_token the Slack full API token (chr)
 #' @return data.table of channels
@@ -77,10 +77,10 @@ slackr_channels <- function(api_token=Sys.getenv("SLACK_API_TOKEN")) {
 
 }
 
-#' Get a data frame of Slack groups
+#' Get a tibble of Slack groups
 #'
 #' @param api_token the Slackfull API token (chr)
-#' @return \code{data.frame} of channels
+#' @return \code{tibble} of channels
 #' @rdname slackr_groups
 #' @export
 slackr_groups <- function(api_token=Sys.getenv("SLACK_API_TOKEN")) {
